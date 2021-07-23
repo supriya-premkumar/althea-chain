@@ -29,13 +29,14 @@ func NewKeeper(cdc codec.BinaryMarshaler, storeKey sdk.StoreKey, paramSpace para
 	return k
 }
 
-func (k Keeper) GetChainIsLocked(ctx sdk.Context) bool {
+// TODO: Doc all these methods
+func (k Keeper) GetChainLocked(ctx sdk.Context) bool {
 	var locked bool
 	k.paramSpace.Get(ctx, types.LockedKey, &locked)
 	return locked
 }
 
-func (k Keeper) SetChainIsLocked(ctx sdk.Context, locked bool) {
+func (k Keeper) SetChainLocked(ctx sdk.Context, locked bool) {
 	k.paramSpace.Set(ctx, types.LockedKey, &locked)
 }
 
@@ -45,6 +46,14 @@ func (k Keeper) GetLockExemptAddresses(ctx sdk.Context) []string {
 	return lockExempt
 }
 
+func (k Keeper) GetLockExemptAddressesSet(ctx sdk.Context) map[string]struct{} {
+	return createSet(k.GetLockExemptAddresses(ctx))
+}
+
+// TODO: It would be nice to just store the pseudo-set instead of the string array
+// so that we get better efficiency on each read (happens each transaction in antehandler)
+// however we would need to make a custom param change proposal handler to construct the
+// set upon governance proposal before storage in keeper
 func (k Keeper) SetLockExemptAddresses(ctx sdk.Context, lockExempt []string) {
 	k.paramSpace.Set(ctx, types.LockExemptKey, &lockExempt)
 }
@@ -55,6 +64,25 @@ func (k Keeper) GetLockedMessageTypes(ctx sdk.Context) []string {
 	return lockedMessageTypes
 }
 
+func (k Keeper) GetLockedMessageTypesSet(ctx sdk.Context) map[string]struct{} {
+	return createSet(k.GetLockedMessageTypes(ctx))
+}
+
 func (k Keeper) SetLockedMessageTypes(ctx sdk.Context, lockedMessageTypes []string) {
 	k.paramSpace.Get(ctx, types.LockedMessageTypesKey, &lockedMessageTypes)
+}
+
+func createSet(strings []string) map[string]struct{} {
+	type void struct{}
+	var member void
+	set := make(map[string]struct{})
+
+	for _, str := range strings {
+		if _, present := set[str]; present {
+			continue
+		}
+		set[str] = member
+	}
+
+	return set
 }

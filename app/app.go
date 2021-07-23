@@ -364,7 +364,7 @@ func NewAltheaApp(
 		params.NewAppModule(app.ParamsKeeper),
 		transferModule,
 		gravity.NewAppModule(app.GravityKeeper, app.BankKeeper),
-		lockup.NewAppModule(app.LockupKeeper, app.BankKeeper),
+		lockup.NewAppModule(app.LockupKeeper),
 	)
 
 	// During begin block slashing happens after distr.BeginBlocker so that

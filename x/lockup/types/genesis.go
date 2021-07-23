@@ -59,7 +59,7 @@ func ValidateLockedMessageTypes(i interface{}) error {
 		return fmt.Errorf("invalid locked message types type: %T", i)
 	}
 	if len(v) == 0 {
-		return fmt.Errorf("no locked message types %v", s)
+		return fmt.Errorf("no locked message types %v", v)
 	}
 	return nil
 }
